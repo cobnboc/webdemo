@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fasting Timer App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #121212;
+            color: #ffffff;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1400px;
+            padding: 20px;
+        }
+        .image-section, .timer-section, .bmi-section {
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .animation-container {
+            margin-bottom: 20px;
+        }
+        .animation-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ff4081;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .animation {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #ff4081;
+            border-top-color: transparent;
+            border-radius: 50%;
+            margin: 20px auto;
+            animation: spin 4s linear infinite; /* Slower spin */
+            display: none; /* Hide animation by default */
+            cursor: pointer; /* Add cursor pointer for clickable area */
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .timer {
+            font-size: 96px;
+            margin-bottom: 20px;
+            color: #ff4081;
+        }
+        img {
+            width: 420px;
+            height: 640px;
+            border-radius: 8px;
+            display: none; /* Hide image by default */
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            background-color: #ff4081;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            text-transform: uppercase; /* Ensure all text is in uppercase */
+            font-family: Arial, sans-serif; /* Change font */
+            font-weight: bold; /* Make text bold */
+        }
+        button:hover {
+            background-color: #e03670;
+        }
+        .skip-button {
+            padding: 5px 10px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .bmi-calculator, .fasting-input {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .bmi-calculator input, .fasting-input input {
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 5px;
+        }
+        .bmi-calculator .weight-input, .fasting-input .time-inputs, .height-inputs {
+            display: flex;
+            gap: 10px;
+        }
+        .fasting-input .fasting-hours, .fasting-input .fasting-minutes, .height-input {
+            width: 95px;
+        }
+        .bmi-calculator button, .fasting-input button, #startStopButton {
+            width: 220px;
+        }
+        .bmi-result {
+            margin-top: 10px;
+            font-size: 20px;
+            color: #ff4081;
+        }
+        .video-container {
+            display: none; /* Hide the video container by default */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+        .video-container video {
+            width: 80%;
+            max-width: 800px;
+            border-radius: 8px;
+        }
+        .back-button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="image-section">
+            <div class="image-container">
+                <img id="motivationalImageLeft" src="../Pictures/Picasa/leftv1.gif" alt="Motivational Image">
+            </div>
+            <button class="skip-button" id="skipButtonLeft">SKIP</button>
+        </div>
+        <div class="timer-section">
+            <div class="animation-container">
+                <div class="animation-title" id="animationTitle">BREAKING THE FAST</div>
+                <div class="animation" id="animation"></div>
+            </div>
+            <div class="timer" id="timer">00:00:00</div>
+            <button id="startStopButton">START TIMER</button>
+            <div class="fasting-input">
+                <div class="time-inputs">
+                    <input type="text" id="fastingHoursInput" class="fasting-hours" placeholder="Hours">
+                    <input type="number" id="fastingMinutesInput" class="fasting-minutes" placeholder="Minutes">
+                </div>
+                <button id="setFastingButton">SET FASTING</button>
+            </div>
+            <div class="bmi-calculator">
+                <input type="number" id="weightInput" class="weight-input" placeholder="Weight (lbs)">
+                <div class="height-inputs">
+                    <input type="number" id="feetInput" class="height-input" placeholder="Feet">
+                    <input type="number" id="inchesInput" class="height-input" placeholder="Inches">
+                </div>
+                <button id="calculateBmiButton">CALCULATE BMI</button>
+                <div class="bmi-result" id="bmiResult"></div>
+            </div>
+        </div>
+        <div class="image-section">
+            <div class="image-container">
+                <img id="motivationalImageRight" src="../Pictures/Picasa/rightv1.gif" alt="Motivational Image">
+            </div>
+            <button class="skip-button" id="skipButtonRight">SKIP</button>
+        </div>
+    </div>
+
+    <div class="video-container" id="videoContainer">
+        <video controls>
+            <source src="../Pictures/Picasa/video3.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <button class="back-button" id="backButton">BACK TO FASTING</button>
+    </div>
+
+    <script>
+        const timerElement = document.getElementById('timer');
+        const startStopButton = document.getElementById('startStopButton');
+        const setFastingButton = document.getElementById('setFastingButton');
+        const skipButtonLeft = document.getElementById('skipButtonLeft');
+        const skipButtonRight = document.getElementById('skipButtonRight');
+        const animation = document.getElementById('animation');
+        const animationTitle = document.getElementById('animationTitle');
+        const weightInput = document.getElementById('weightInput');
+        const feetInput = document.getElementById('feetInput');
+        const inchesInput = document.getElementById('inchesInput');
+        const fastingHoursInput = document.getElementById('fastingHoursInput');
+        const fastingMinutesInput = document.getElementById('fastingMinutesInput');
+        const calculateBmiButton = document.getElementById('calculateBmiButton');
+        const bmiResult = document.getElementById('bmiResult');
+        const motivationalImageLeft = document.getElementById('motivationalImageLeft');
+        const motivationalImageRight = document.getElementById('motivationalImageRight');
+        const videoContainer = document.getElementById('videoContainer');
+        const backButton = document.getElementById('backButton');
+
+        let timerInterval;
+        let seconds = 0;
+        let isRunning = false;
+        let currentImageIndexLeft = 0;
+        let currentImageIndexRight = 0;
+
+        const imagePathsLeft = [
+            '../Pictures/Picasa/leftv1.gif',
+            '../Pictures/Picasa/leftv2.gif',
+            '../Pictures/Picasa/leftv3.gif',
+            '../Pictures/Picasa/leftv4.gif',
+            '../Pictures/Picasa/leftv5.gif',
+            '../Pictures/Picasa/leftv6.gif',
+            '../Pictures/Picasa/leftv7.gif',
+            '../Pictures/Picasa/leftv8.gif',
+            '../Pictures/Picasa/leftv9.gif',
+            '../Pictures/Picasa/leftv10.gif',
+            '../Pictures/Picasa/leftv11.gif',
+            '../Pictures/Picasa/leftv12.gif',
+            '../Pictures/Picasa/leftv13.gif',
+            '../Pictures/Picasa/leftv14.gif',
+            '../Pictures/Picasa/leftv15.gif',
+            '../Pictures/Picasa/leftv16.gif',
+            '../Pictures/Picasa/leftv17.gif',
+            '../Pictures/Picasa/leftv18.gif',
+            '../Pictures/Picasa/leftv19.gif',
+            '../Pictures/Picasa/leftv20.gif',
+            '../Pictures/Picasa/leftv21.gif',
+            '../Pictures/Picasa/leftv22.gif',
+            '../Pictures/Picasa/leftv23.gif',
+            '../Pictures/Picasa/leftv24.gif',
+            '../Pictures/Picasa/leftv25.gif',
+            '../Pictures/Picasa/leftv26.gif',
+            '../Pictures/Picasa/leftv27.gif',
+            '../Pictures/Picasa/leftv28.gif',
+            '../Pictures/Picasa/leftv29.gif',
+            '../Pictures/Picasa/leftv30.gif',
+        ];
+        const imagePathsRight = [
+            '../Pictures/Picasa/rightv1.gif',
+            '../Pictures/Picasa/rightv2.gif',
+            '../Pictures/Picasa/rightv3.gif',
+            '../Pictures/Picasa/rightv4.gif',
+            '../Pictures/Picasa/rightv5.gif',
+            '../Pictures/Picasa/rightv6.gif',
+            '../Pictures/Picasa/rightv7.gif',
+            '../Pictures/Picasa/rightv8.gif',
+            '../Pictures/Picasa/rightv9.gif',
+            '../Pictures/Picasa/rightv10.gif',
+            '../Pictures/Picasa/rightv11.gif',
+            '../Pictures/Picasa/rightv12.gif',
+            '../Pictures/Picasa/rightv13.gif',
+            '../Pictures/Picasa/rightv14.gif',
+            '../Pictures/Picasa/rightv15.gif',
+            '../Pictures/Picasa/rightv16.gif',
+            '../Pictures/Picasa/rightv17.gif',
+            '../Pictures/Picasa/rightv18.gif',
+            '../Pictures/Picasa/rightv19.gif',
+            '../Pictures/Picasa/rightv20.gif',
+            '../Pictures/Picasa/rightv21.gif',
+            '../Pictures/Picasa/rightv22.gif',
+            '../Pictures/Picasa/rightv23.gif',
+            '../Pictures/Picasa/rightv24.gif',
+            '../Pictures/Picasa/rightv25.gif',
+            '../Pictures/Picasa/rightv26.gif',
+            '../Pictures/Picasa/rightv27.gif',
+            '../Pictures/Picasa/rightv28.gif',
+            '../Pictures/Picasa/rightv29.gif',
+            '../Pictures/Picasa/rightv30.gif',
+        ];
+
+        startStopButton.addEventListener('click', () => {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                startStopButton.textContent = 'START TIMER';
+                resetTimer();
+                motivationalImageLeft.style.display = 'none';
+                motivationalImageRight.style.display = 'none';
+                animation.style.display = 'none';
+                animationTitle.textContent = 'BREAKING THE FAST';
+            } else {
+                timerInterval = setInterval(updateTimer, 1000);
+                startStopButton.textContent = 'STOP TIMER';
+                motivationalImageLeft.style.display = 'block';
+                motivationalImageRight.style.display = 'block';
+                animation.style.display = 'block';
+                animationTitle.textContent = 'FASTING IN PROGRESS';
+            }
+            isRunning = !isRunning;
+        });
+
+        setFastingButton.addEventListener('click', () => {
+            const hours = fastingHoursInput.value.trim();
+            const minutes = fastingMinutesInput.value.trim();
+
+            if (hours.toLowerCase() === 'bingo') {
+                videoContainer.style.display = 'flex';
+            } else {
+                let totalSeconds = 0;
+
+                if (hours !== '') {
+                    totalSeconds += parseInt(hours) * 3600;
+                }
+
+                if (minutes !== '') {
+                    totalSeconds += parseInt(minutes) * 60;
+                }
+
+                if (totalSeconds > 0) {
+                    seconds = totalSeconds;
+                    updateTimerDisplay();
+                } else {
+                    alert('Please enter valid numbers for hours or minutes.');
+                }
+            }
+        });
+
+        backButton.addEventListener('click', () => {
+            videoContainer.style.display = 'none';
+        });
+
+        skipButtonLeft.addEventListener('click', () => {
+            changeImage('left', true);
+        });
+
+        skipButtonRight.addEventListener('click', () => {
+            changeImage('right', true);
+        });
+
+        animation.addEventListener('click', () => {
+            changeImage('left', false);
+            changeImage('right', false);
+        });
+
+        calculateBmiButton.addEventListener('click', () => {
+            const weight = parseFloat(weightInput.value);
+            const feet = parseFloat(feetInput.value);
+            const inches = parseFloat(inchesInput.value);
+            if (!isNaN(weight) && !isNaN(feet) && !isNaN(inches) && feet >= 0 && inches >= 0) {
+                const heightInInches = feet * 12 + inches;
+                const bmi = (weight / (heightInInches * heightInInches)) * 703;
+
+                bmiResult.textContent = `BMI: ${bmi.toFixed(2)}`;
+
+                if (bmi < 18.5) {
+                    bmiResult.textContent += `\nYou are underweight.`;
+                } else if (bmi >= 18.5 && bmi <= 24.9) {
+                    bmiResult.textContent += `\nYou have a healthy weight.`;
+                } else if (bmi >= 25 && bmi <= 29.9) {
+                    const healthyWeight = 24.9 * (heightInInches * heightInInches) / 703;
+                    const weightToLose = weight - healthyWeight;
+                    bmiResult.textContent += `\nYou are overweight. You need to lose ${weightToLose.toFixed(2)} lbs to reach a healthy weight.`;
+                } else {
+                    const healthyWeight = 24.9 * (heightInInches * heightInInches) / 703;
+                    const weightToLose = weight - healthyWeight;
+                    bmiResult.textContent += `\nYou are obese. You need to lose ${weightToLose.toFixed(2)} lbs to reach a healthy weight.`;
+                }
+            } else {
+                bmiResult.textContent = 'Please enter valid numbers.';
+            }
+        });
+
+        function updateTimer() {
+            seconds++;
+            updateTimerDisplay();
+
+            if (seconds % 45 === 0) {
+                changeImage('left', true);
+                changeImage('right', true);
+            }
+        }
+
+        function updateTimerDisplay() {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            timerElement.textContent = `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
+        }
+
+        function pad(number) {
+            return number < 10 ? '0' + number : number;
+        }
+
+        function changeImage(side, forward) {
+            if (side === 'left') {
+                currentImageIndexLeft = (currentImageIndexLeft + (forward ? 1 : -1) + imagePathsLeft.length) % imagePathsLeft.length;
+                motivationalImageLeft.src = imagePathsLeft[currentImageIndexLeft];
+            } else if (side === 'right') {
+                currentImageIndexRight = (currentImageIndexRight + (forward ? 1 : -1) + imagePathsRight.length) % imagePathsRight.length;
+                motivationalImageRight.src = imagePathsRight[currentImageIndexRight];
+            }
+        }
+
+        function resetTimer() {
+            seconds = 0;
+            updateTimerDisplay();
+        }
+    </script>
+</body>
+</html>
